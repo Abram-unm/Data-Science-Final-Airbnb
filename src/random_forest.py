@@ -4,9 +4,11 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 from preprocessing import load_data_rf
 import os
+import time
 
 
 def main():
+    start = time.time( )
     print("Beginning Random Forest")
     # Find hyperparameters for best Random Forest
     train_data, train_labels = load_data_rf("../prepared/train_preprocessed.csv")
@@ -35,11 +37,13 @@ def main():
     pict = ConfusionMatrixDisplay(confusion_matrix=conf)
     title_string = f"Random Forest: IG Criterion={criterion} Max Depth={depth}"
     #pict.title(title_string)
-    pict.plot
+    pict.plot()
     # Save the plot
     plot_pretrain = f"random_forest_plot_info_gain_criterion={criterion}_max_depth={depth}.png"
     plt.savefig(plot_pretrain)
     plt.close()
+    end = time.time( )
+    print("Overall execution took:", end - start, "seconds")
 
 
 if __name__ == "__main__":
