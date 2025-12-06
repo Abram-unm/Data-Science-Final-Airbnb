@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier
+import time
 
 #Setup and load data
 SCRIPT_DIR = Path(__file__).parent 
@@ -26,11 +27,24 @@ y_train = train_df[target]
 
 #TRAIN
 print("Training Random Forest for Optimization...")
-rf = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
+
+start_time = time.time()  # <--- START CLOCK
+
+# We add class_weight = 'balanced' so the model pays attention to the rare "High Occupancy" class
+rf = RandomForestClassifier(
+    n_estimators=100, 
+    random_state=42, 
+    n_jobs=-1, 
+    class_weight='balanced'
+)
 rf.fit(X_train, y_train)
 
-#Test house: randomly select a 'test house' from TEST data 
-#Property #5 will be our test house
+end_time = time.time()    # <--- STOP CLOCK
+
+print(f"Training Time: {end_time - start_time:.2f} seconds") # <--- DON'T FORGET THIS!
+
+# Test house: randomly select a 'test house' from TEST data 
+# Property #5 will be our test house
 row_index = 5
 sample_house = test_df.iloc[[row_index]].drop(columns=[target]).copy()
 
@@ -40,6 +54,7 @@ print(f"- Bedrooms: {sample_house['bedrooms'].values[0]}")
 is_big_bear = sample_house.get('city_Big Bear Lake', 0).values[0]
 print(f"- City: {'Big Bear' if is_big_bear == 1 else 'Other'}")
 print(f"- Current Price: ${sample_house['nightly rate'].values[0]}")
+
 
 #OPTIMIZATION LOOP: Test prices from $50 to $1500
 test_prices = np.arange(50, 1501, 25)
@@ -57,7 +72,7 @@ for price in test_prices:
     #Expected value calculation
     '''Use a weighted average
     We add weights to penalize the model for incorrect predictions, 
-    and prevent it from being "lazy" (when making its predictions) by favoring the majority.
+    and prevent it from being "lazy" (when making its prediction) by favoring the majority.
 
     High Occupancy ~ 24 days/mo
     Low Occupancy ~ 9 days/mo'''
