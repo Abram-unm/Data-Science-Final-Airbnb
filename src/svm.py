@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import sys
+import time
 
 #use LinearSVC for efficiency
 from sklearn.svm import LinearSVC
@@ -45,6 +46,8 @@ y_test = test_df[target]
 print("\nTraining SVM Model (Linear Kernel)...")
 print("Note: Pipeline will Impute missing values -> Scale -> Train SVM.")
 
+start_time = time.time()  # <--- START CLOCK
+
 #add imputer to handle missing values & replace with median, then do scaling
 svm_pipeline = Pipeline([
     ('imputer', SimpleImputer(strategy='median')),
@@ -53,6 +56,10 @@ svm_pipeline = Pipeline([
 ])
 
 svm_pipeline.fit(X_train, y_train)
+
+end_time = time.time()    # <--- STOP CLOCK
+
+print(f"Training Time: {end_time - start_time:.2f} seconds")
 print("Training Complete!")
 
 #evaluate
